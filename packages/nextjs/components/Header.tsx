@@ -10,6 +10,7 @@ import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { useOutsideClick, useTargetNetwork } from "~~/hooks/scaffold-eth";
 import { arbitrumNitro } from "~~/utils/scaffold-stylus/supportedChains";
 import { BanknotesIcon } from "@heroicons/react/24/outline";
+import { Route } from "next";
 
 type HeaderMenuLink = {
   label: string;
@@ -44,7 +45,7 @@ export const HeaderMenuLinks = () => {
         return (
           <li key={href}>
             <Link
-              href={href}
+              href={href as Route}
               passHref
               className={`${
                 isActive ? "bg-secondary shadow-md" : ""

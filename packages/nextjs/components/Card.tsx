@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { Route } from "next";
 
 interface CardProps {
   icon: React.ReactNode;
@@ -25,7 +26,7 @@ export const Card: React.FC<CardProps> = ({ icon, description, linkHref, linkTex
       <p className="text-sm">
         {description}
         <br />
-        <Link href={linkHref} passHref className="underline underline-offset-4 font-semibold">
+        <Link href={linkHref as Route} passHref className="underline underline-offset-4 font-semibold">
           {linkText}
         </Link>{" "}
         tab.

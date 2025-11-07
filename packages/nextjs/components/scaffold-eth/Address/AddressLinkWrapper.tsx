@@ -1,3 +1,4 @@
+import { Route } from "next";
 import Link from "next/link";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth";
 import { arbitrumNitro } from "~~/utils/scaffold-stylus/supportedChains";
@@ -19,7 +20,7 @@ export const AddressLinkWrapper = ({
     <>{children}</>
   ) : (
     <Link
-      href={blockExplorerAddressLink}
+      href={blockExplorerAddressLink as Route}
       target={targetNetwork.id === arbitrumNitro.id ? undefined : "_blank"}
       rel={targetNetwork.id === arbitrumNitro.id ? undefined : "noopener noreferrer"}
     >
