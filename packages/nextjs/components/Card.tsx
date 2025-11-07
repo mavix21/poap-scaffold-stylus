@@ -6,15 +6,12 @@ interface CardProps {
   description: React.ReactNode;
   linkHref: string;
   linkText: string;
-  isDarkMode: boolean;
 }
 
-export const Card: React.FC<CardProps> = ({ icon, description, linkHref, linkText, isDarkMode }) => {
+export const Card: React.FC<CardProps> = ({ icon, description, linkHref, linkText }) => {
   return (
     <div
-      className={`relative h-full rounded-3xl border-2 border-transparent p-4 text-center flex flex-col items-center justify-evenly max-w-md ${
-        isDarkMode ? "gradient-border-red" : "gradient-border-light"
-      }`}
+      className="relative h-full rounded-3xl border-2 border-transparent p-4 text-center flex flex-col items-center justify-evenly max-w-md card-surface"
       style={{
         boxShadow: "0 0 0 3px transparent",
       }}
