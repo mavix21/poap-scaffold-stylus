@@ -85,6 +85,7 @@ p {
     linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%) border-box;
 }
 
+[data-theme="dark"] .card-surface,
 .dark .card-surface {
   border: 1px solid transparent;
   background:

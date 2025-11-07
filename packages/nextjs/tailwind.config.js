@@ -2,7 +2,7 @@
 module.exports = {
   content: ["./app/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}", "./utils/**/*.{js,ts,jsx,tsx}"],
   plugins: [require("daisyui")],
-  darkMode: "class",
+  darkMode: ["class", '[data-theme="dark"]'],
   // DaisyUI theme colors
   daisyui: {
     themes: [
