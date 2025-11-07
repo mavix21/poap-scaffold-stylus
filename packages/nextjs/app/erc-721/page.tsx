@@ -1,25 +1,9 @@
-"use client";
-
-import { useState } from "react";
-import { AllNfts } from "./_components/AllNfts";
-import { MyNfts } from "./_components/MyNfts";
 import type { NextPage } from "next";
-import { useAccount } from "wagmi";
-import { AddressInput } from "~~/components/scaffold-eth";
-import { useTheme } from "next-themes";
-import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { AllNfts } from "./_components/AllNfts";
+import { MintSection } from "./_components/MintSection";
+import { MyNfts } from "./_components/MyNfts";
 
 const ERC721: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
-  const { resolvedTheme } = useTheme();
-  const isDarkMode = resolvedTheme === "dark";
-
-  const [toAddress, setToAddress] = useState<string>("");
-
-  const { writeContractAsync: writeTokenAsync } = useScaffoldWriteContract({
-    contractName: "erc721-example",
-  });
-
   return (
     <div className="flex items-center flex-col justify-between flex-grow pt-10 px-5">
       <div className="flex flex-col justify-center flex-grow max-w-4xl w-full">
@@ -71,54 +55,7 @@ const ERC721: NextPage = () => {
 
         <div className="divider mb-8"></div>
 
-        <div
-          className={`space-y-6 mb-8 p-6 ${isDarkMode ? "bg-black" : "bg-gray-100"} border-2 border-pink-500 rounded-2xl`}
-        >
-          <div className="text-center">
-            <button
-              className="btn btn-primary btn-lg px-8 py-3 text-lg font-semibold rounded-full"
-              onClick={async () => {
-                try {
-                  if (!connectedAddress) return;
-                  await writeTokenAsync({ functionName: "mint", args: [connectedAddress] });
-                } catch (e) {
-                  console.error("Error while minting token", e);
-                }
-              }}
-              disabled={!connectedAddress}
-            >
-              Mint token to your address
-            </button>
-          </div>
-
-          <div className={`rounded-xl p-6 ${isDarkMode ? "bg-black" : "bg-gray-100"}`}>
-            <h3 className="text-2xl font-bold mb-6">Mint token to another address</h3>
-            <div className="space-y-6">
-              <div>
-                <label className="block text-lg font-medium mb-2">To:</label>
-                <div className="border-2 border-pink-500 rounded-2xl">
-                  <AddressInput value={toAddress} onChange={setToAddress} placeholder="Address" />
-                </div>
-              </div>
-              <div>
-                <button
-                  className="btn btn-primary btn-lg px-8 py-3 text-lg font-semibold rounded-full"
-                  disabled={!connectedAddress || !toAddress}
-                  onClick={async () => {
-                    try {
-                      await writeTokenAsync({ functionName: "mint", args: [toAddress] });
-                      setToAddress("");
-                    } catch (e) {
-                      console.error("Error while minting token", e);
-                    }
-                  }}
-                >
-                  Mint
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <MintSection />
 
         <MyNfts />
         <AllNfts />
