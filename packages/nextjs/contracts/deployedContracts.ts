@@ -7,9 +7,9 @@ import { GenericContractsDeclaration } from "../utils/scaffold-eth/contract";
 const deployedContracts = {
   "412346": {
     "erc721-example": {
-      address: "0x1a337c6d48bc0d19f913d16074d362d065564f86",
+      address: "0xeff7b46049fc677f58264e0ebb19df1a39195a21",
       txHash:
-        "0x824687b60a5412981309ab2b0fbec86c5690178e26425c3efe98064254ad4ee0",
+        "0xba54a40ef986c367878965fc65f7306d9e6ed62e462e57fd962a94997fadb109",
       abi: [
         {
           inputs: [
@@ -156,6 +156,24 @@ const deployedContracts = {
           inputs: [],
           name: "UnauthorizedAction",
           type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "event_id",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "minter",
+              type: "address",
+            },
+          ],
+          name: "addEventMinter",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
         },
         {
           inputs: [
