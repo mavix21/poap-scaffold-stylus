@@ -58,6 +58,7 @@ pub struct Poap {
     event_name: StorageMap<U256, StorageString>,
     event_organizer: StorageMap<U256, StorageAddress>,
     event_active: StorageMap<U256, StorageBool>,
+    event_minters: StorageMap<U256, StorageMap<Address, StorageBool>>,
     event_attendance: StorageMap<U256, StorageMap<Address, StorageBool>>,
 }
 
@@ -115,11 +116,29 @@ impl Poap {
         self.event_organizer.setter(new_event_id).set(organizer);
         self.event_active.setter(new_event_id).set(true);
 
+        self.event_minters
+            .setter(new_event_id)
+            .setter(organizer)
+            .set(true);
+
         Ok(new_event_id)
     }
 
-    fn mint_token(&mut self, event_id: U256, to: Address) -> Result<U256, PoapError> {
+    fn add_event_minter(&mut self, event_id: U256, minter: Address) -> Result<(), PoapError> {
         self.ensure_owner()?;
+
+        self.event_minters.setter(event_id).setter(minter).set(true);
+
+        Ok(())
+    }
+
+    fn mint_token(&mut self, event_id: U256, to: Address) -> Result<U256, PoapError> {
+        let is_minter = self.event_minters.get(event_id).get(self.vm().msg_sender());
+
+        if !is_minter && self.owner.only_owner().is_err() {
+            return Err(PoapError::UnauthorizedAction(UnauthorizedAction {}));
+        }
+
         if !self.event_active.get(event_id) {
             return Err(PoapError::InvalidOperation(InvalidOperation {}));
         }
