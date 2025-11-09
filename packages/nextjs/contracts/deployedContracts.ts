@@ -9,13 +9,8 @@ const deployedContracts = {
     "erc721-example": {
       address: "0x1a337c6d48bc0d19f913d16074d362d065564f86",
       txHash:
-        "0x959f4ade94b020ba94c0737295eb95c152e61ad80ec81504a5db5a4e4a6ab5ef",
+        "0x824687b60a5412981309ab2b0fbec86c5690178e26425c3efe98064254ad4ee0",
       abi: [
-        {
-          inputs: [],
-          name: "ERC721EnumerableForbiddenBatchMint",
-          type: "error",
-        },
         {
           inputs: [
             {
@@ -120,19 +115,8 @@ const deployedContracts = {
           type: "error",
         },
         {
-          inputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          name: "ERC721OutOfBoundsIndex",
+          inputs: [],
+          name: "InvalidOperation",
           type: "error",
         },
         {
@@ -150,12 +134,39 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "address",
-              name: "to",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "OwnableInvalidOwner",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "OwnableUnauthorizedAccount",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "UnauthorizedAction",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_to",
               type: "address",
             },
             {
               internalType: "uint256",
-              name: "token_id",
+              name: "_token_id",
               type: "uint256",
             },
           ],
@@ -186,12 +197,68 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "address",
+              name: "organizer",
+              type: "address",
+            },
+          ],
+          name: "createEvent",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "uint256",
               name: "token_id",
               type: "uint256",
             },
           ],
           name: "getApproved",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "event_id",
+              type: "uint256",
+            },
+          ],
+          name: "getEventName",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getOwner",
           outputs: [
             {
               internalType: "address",
@@ -229,13 +296,24 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "uint256",
+              name: "event_id",
+              type: "uint256",
+            },
+            {
               internalType: "address",
               name: "to",
               type: "address",
             },
           ],
-          name: "mint",
-          outputs: [],
+          name: "mintToken",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
           stateMutability: "nonpayable",
           type: "function",
         },
@@ -275,17 +353,17 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "address",
-              name: "from",
+              name: "_from",
               type: "address",
             },
             {
               internalType: "address",
-              name: "to",
+              name: "_to",
               type: "address",
             },
             {
               internalType: "uint256",
-              name: "token_id",
+              name: "_token_id",
               type: "uint256",
             },
           ],
@@ -298,22 +376,22 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "address",
-              name: "from",
+              name: "_from",
               type: "address",
             },
             {
               internalType: "address",
-              name: "to",
+              name: "_to",
               type: "address",
             },
             {
               internalType: "uint256",
-              name: "token_id",
+              name: "_token_id",
               type: "uint256",
             },
             {
               internalType: "bytes",
-              name: "data",
+              name: "_data",
               type: "bytes",
             },
           ],
@@ -326,12 +404,12 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "address",
-              name: "to",
+              name: "_to",
               type: "address",
             },
             {
               internalType: "bool",
-              name: "approved",
+              name: "_approved",
               type: "bool",
             },
           ],
@@ -432,21 +510,34 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "address",
-              name: "from",
+              name: "_from",
               type: "address",
             },
             {
               internalType: "address",
-              name: "to",
+              name: "_to",
               type: "address",
             },
             {
               internalType: "uint256",
-              name: "token_id",
+              name: "_token_id",
               type: "uint256",
             },
           ],
           name: "transferFrom",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "new_owner",
+              type: "address",
+            },
+          ],
+          name: "transferOwnership",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
