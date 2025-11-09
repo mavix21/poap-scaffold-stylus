@@ -37,28 +37,38 @@ export const MyNfts = () => {
       setLoading(true);
       const collectibleUpdate: Collectible[] = [];
       const totalBalance = parseInt(balance.toString());
-      for (let tokenIndex = 0; tokenIndex < totalBalance; tokenIndex++) {
+
+      // Get last token ID to know the range
+      const lastTokenId = await nftContract.read.getLastTokenId();
+      const maxTokenId = parseInt(lastTokenId.toString());
+
+      // Check all tokens from 1 to lastTokenId to find owned tokens
+      for (let tokenId = 1; tokenId <= maxTokenId && collectibleUpdate.length < totalBalance; tokenId++) {
         try {
-          const tokenId = await nftContract.read.tokenOfOwnerByIndex([connectedAddress, BigInt(tokenIndex)]);
+          const owner = await nftContract.read.ownerOf([BigInt(tokenId)]);
 
-          const tokenURI = await nftContract.read.tokenURI([tokenId]);
+          if (owner.toLowerCase() === connectedAddress.toLowerCase()) {
+            const tokenURI = await nftContract.read.tokenURI([BigInt(tokenId)]);
+            const eventId = await nftContract.read.getTokenEvent([BigInt(tokenId)]);
 
-          const tokenMetadata = await fetch(tokenURI);
-          const metadata = await tokenMetadata.json();
-
-          collectibleUpdate.push({
-            id: parseInt(tokenId.toString()),
-            uri: tokenURI,
-            owner: connectedAddress,
-            image: metadata.image,
-            name: metadata.name,
-          });
-        } catch (e) {
-          notification.error("Error fetching your NFTs");
-          setLoading(false);
-          console.log(e);
+            collectibleUpdate.push({
+              id: tokenId,
+              uri: tokenURI,
+              owner: connectedAddress,
+              image: `https://via.placeholder.com/150?text=Event+${eventId}`,
+              name: `POAP Token #${tokenId}`,
+            });
+          }
+        } catch {
+          // Token might not exist or be burned, skip it
+          continue;
         }
       }
+
+      if (collectibleUpdate.length === 0 && totalBalance > 0) {
+        notification.error("Error fetching your NFTs");
+      }
+
       collectibleUpdate.sort((a, b) => a.id - b.id);
       setMyNfts(collectibleUpdate);
       setLoading(false);

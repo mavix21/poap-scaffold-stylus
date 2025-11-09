@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { NFTCard } from "./NFTCard";
 import { useScaffoldContract, useScaffoldReadContract } from "~~/hooks/scaffold-eth";
-import { notification } from "~~/utils/scaffold-eth";
 
 export interface Collectible {
   id: number;
@@ -21,34 +20,35 @@ export const AllNfts = () => {
     contractName: "erc721-example",
   });
 
-  const { data: totalSupply } = useScaffoldReadContract({
+  const { data: lastTokenId } = useScaffoldReadContract({
     contractName: "erc721-example",
-    functionName: "totalSupply",
+    functionName: "getLastTokenId",
     watch: true,
   });
 
   useEffect(() => {
     const updateAllNfts = async (): Promise<void> => {
-      if (totalSupply === undefined || nftContract === undefined) return;
+      if (lastTokenId === undefined || nftContract === undefined) return;
 
       setLoading(true);
       const collectibleUpdate: Collectible[] = [];
-      for (let tokenIndex = 0; tokenIndex < parseInt(totalSupply.toString()); tokenIndex++) {
+      const maxTokenId = parseInt(lastTokenId.toString());
+
+      for (let tokenId = 1; tokenId <= maxTokenId; tokenId++) {
         try {
-          const tokenId = await nftContract.read.tokenByIndex([BigInt(tokenIndex)]);
-          const owner = await nftContract.read.ownerOf([tokenId]);
+          const owner = await nftContract.read.ownerOf([BigInt(tokenId)]);
+          const eventId = await nftContract.read.getTokenEvent([BigInt(tokenId)]);
 
           collectibleUpdate.push({
-            id: parseInt(tokenId.toString()),
+            id: tokenId,
             uri: `Token #${tokenId}`,
             owner,
-            image: "",
+            image: `https://via.placeholder.com/150?text=Event+${eventId}`,
             name: `POAP Token #${tokenId}`,
           });
-        } catch (e) {
-          notification.error("Error fetching NTFs");
-          setLoading(false);
-          console.log(e);
+        } catch {
+          // Token might not exist or be burned, skip it
+          continue;
         }
       }
       collectibleUpdate.sort((a, b) => a.id - b.id);
@@ -58,7 +58,7 @@ export const AllNfts = () => {
 
     updateAllNfts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [totalSupply]);
+  }, [lastTokenId]);
 
   if (loading)
     return (
@@ -70,8 +70,8 @@ export const AllNfts = () => {
   return (
     <>
       <div className="flex justify-center items-center space-x-2 flex-col sm:flex-row">
-        <p className="y-2 mr-2 font-bold text-2xl my-2">Total Supply:</p>
-        <p className="text-xl">{totalSupply ? totalSupply.toString() : 0} tokens</p>
+        <p className="y-2 mr-2 font-bold text-2xl my-2">Total Minted:</p>
+        <p className="text-xl">{lastTokenId ? lastTokenId.toString() : 0} tokens</p>
       </div>
       {allNfts.length > 0 && (
         <div className="flex flex-wrap gap-4 my-8 px-5 justify-center">

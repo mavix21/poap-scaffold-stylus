@@ -7,7 +7,7 @@ use openzeppelin_stylus::{
     access::ownable::{self, Ownable, OwnableInvalidOwner, OwnableUnauthorizedAccount},
     token::erc721::{
         self,
-        extensions::{Erc721Enumerable, Erc721Metadata, IErc721Enumerable, IErc721Metadata},
+        extensions::{Erc721Metadata, IErc721Metadata},
         Erc721, IErc721,
     },
     utils::introspection::erc165::IErc165,
@@ -48,7 +48,6 @@ impl From<ownable::Error> for PoapError {
 pub struct Poap {
     erc721: Erc721,
     metadata: Erc721Metadata,
-    enumerable: Erc721Enumerable,
     owner: Ownable,
 
     last_token_id: StorageU256,
@@ -78,12 +77,6 @@ impl Poap {
         self.erc721
             ._mint(recipient, new_token_id)
             .map_err(|_| PoapError::InvalidOperation(InvalidOperation {}))?;
-
-        let _ =
-            self.enumerable
-                ._add_token_to_owner_enumeration(recipient, new_token_id, &self.erc721);
-        self.enumerable
-            ._add_token_to_all_tokens_enumeration(new_token_id);
 
         self.token_event.setter(new_token_id).set(event_id);
         self.event_attendance
@@ -126,6 +119,10 @@ impl Poap {
 
     fn add_event_minter(&mut self, event_id: U256, minter: Address) -> Result<(), PoapError> {
         self.ensure_owner()?;
+
+        if event_id > self.last_event_id.get() || event_id == U256::ZERO {
+            return Err(PoapError::InvalidOperation(InvalidOperation {}));
+        }
 
         self.event_minters.setter(event_id).setter(minter).set(true);
 
@@ -226,29 +223,31 @@ impl Poap {
         self.event_name.get(event_id).get_string()
     }
 
+    fn is_event_minter(&self, event_id: U256, minter: Address) -> bool {
+        self.event_minters.get(event_id).get(minter)
+    }
+
+    fn get_event_organizer(&self, event_id: U256) -> Address {
+        self.event_organizer.get(event_id)
+    }
+
+    fn is_event_active(&self, event_id: U256) -> bool {
+        self.event_active.get(event_id)
+    }
+
+    fn get_last_token_id(&self) -> U256 {
+        self.last_token_id.get()
+    }
+
+    fn get_token_event(&self, token_id: U256) -> U256 {
+        self.token_event.get(token_id)
+    }
+
     #[selector(name = "tokenURI")]
     pub fn token_uri_public(&self, token_id: U256) -> Result<String, erc721::Error> {
         self.erc721.owner_of(token_id)?;
         let event_id = self.token_event.get(token_id);
         Ok(String::from("ipfs://") + &event_id.to_string() + "/" + &token_id.to_string())
-    }
-
-    fn total_supply(&self) -> U256 {
-        self.enumerable.total_supply()
-    }
-
-    fn token_by_index(&self, index: U256) -> Result<U256, erc721::Error> {
-        self.enumerable.token_by_index(index).map_err(|_| {
-            erc721::Error::NonexistentToken(erc721::ERC721NonexistentToken { token_id: index })
-        })
-    }
-
-    fn token_of_owner_by_index(&self, owner: Address, index: U256) -> Result<U256, erc721::Error> {
-        self.enumerable
-            .token_of_owner_by_index(owner, index)
-            .map_err(|_| {
-                erc721::Error::NonexistentToken(erc721::ERC721NonexistentToken { token_id: index })
-            })
     }
 }
 

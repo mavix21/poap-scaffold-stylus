@@ -7,9 +7,9 @@ import { GenericContractsDeclaration } from "../utils/scaffold-eth/contract";
 const deployedContracts = {
   "412346": {
     "erc721-example": {
-      address: "0xeff7b46049fc677f58264e0ebb19df1a39195a21",
+      address: "0x73f68e1e4d02557e6cefd0292ffac13da5d18490",
       txHash:
-        "0xba54a40ef986c367878965fc65f7306d9e6ed62e462e57fd962a94997fadb109",
+        "0x6d22a5e84b7a321ada60ff3cdfd5bc5c47a11a75c5d512b3b315e36967930026",
       abi: [
         {
           inputs: [
@@ -275,6 +275,38 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "event_id",
+              type: "uint256",
+            },
+          ],
+          name: "getEventOrganizer",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getLastTokenId",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "getOwner",
           outputs: [
@@ -282,6 +314,25 @@ const deployedContracts = {
               internalType: "address",
               name: "",
               type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "token_id",
+              type: "uint256",
+            },
+          ],
+          name: "getTokenEvent",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
             },
           ],
           stateMutability: "view",
@@ -301,6 +352,49 @@ const deployedContracts = {
             },
           ],
           name: "isApprovedForAll",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "event_id",
+              type: "uint256",
+            },
+          ],
+          name: "isEventActive",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "event_id",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "minter",
+              type: "address",
+            },
+          ],
+          name: "isEventMinter",
           outputs: [
             {
               internalType: "bool",
@@ -453,49 +547,6 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "uint256",
-              name: "index",
-              type: "uint256",
-            },
-          ],
-          name: "tokenByIndex",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "index",
-              type: "uint256",
-            },
-          ],
-          name: "tokenOfOwnerByIndex",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
               name: "token_id",
               type: "uint256",
             },
@@ -506,19 +557,6 @@ const deployedContracts = {
               internalType: "string",
               name: "",
               type: "string",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "totalSupply",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
             },
           ],
           stateMutability: "view",
