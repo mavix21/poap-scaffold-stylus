@@ -28,12 +28,12 @@ export const EventManagement = () => {
         notification.error("Please fill in all fields");
         return;
       }
-      
+
       await writeAsync({
         functionName: "createEvent",
         args: [eventName, organizer],
       });
-      
+
       notification.success("Event created successfully!");
       setEventName("");
       setOrganizer("");
@@ -43,9 +43,9 @@ export const EventManagement = () => {
   };
 
   return (
-    <div className="p-6 bg-base-200 border-2 border-primary rounded-2xl shadow-lg">
+    <div className="p-6 bg-base-100 border-2 border-primary rounded-2xl shadow-lg">
       <h3 className="text-2xl font-bold mb-4 text-primary">Create New Event</h3>
-      
+
       {!isOwner && (
         <div className="alert alert-warning mb-4">
           <svg
@@ -67,19 +67,19 @@ export const EventManagement = () => {
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Event Name:</label>
+          <label className="block text-sm font-bold mb-2">Event Name:</label>
           <input
             type="text"
-            className="input input-bordered w-full"
+            className="input input-bordered w-full bg-base-200"
             value={eventName}
             onChange={e => setEventName(e.target.value)}
             placeholder="e.g., ETH Denver 2025"
             disabled={!isOwner || isPending}
           />
         </div>
-        
+
         <div>
-          <label className="block text-sm font-medium mb-2">Organizer Address:</label>
+          <label className="block text-sm font-bold mb-2">Organizer Address:</label>
           <AddressInput
             value={organizer}
             onChange={setOrganizer}
@@ -87,7 +87,7 @@ export const EventManagement = () => {
             disabled={!isOwner || isPending}
           />
         </div>
-        
+
         <button
           className="btn btn-primary btn-block"
           onClick={handleCreateEvent}

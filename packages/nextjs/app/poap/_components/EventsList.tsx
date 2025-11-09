@@ -73,13 +73,13 @@ export const EventsList = () => {
       <h3 className="text-3xl font-bold mb-6 text-center">All Events</h3>
 
       {events.length === 0 ? (
-        <div className="text-center p-8 bg-base-200 rounded-2xl">
-          <p className="text-lg">No events created yet. Create your first event above!</p>
+        <div className="text-center p-8 bg-base-100 rounded-2xl border-2 border-base-300">
+          <p className="text-lg font-semibold">No events created yet. Create your first event above!</p>
         </div>
       ) : (
         <div className="grid gap-4">
           {events.map(event => (
-            <div key={event.id} className="collapse collapse-arrow bg-base-200 border-2 border-base-300">
+            <div key={event.id} className="collapse collapse-arrow bg-base-100 border-2 border-base-300">
               <input
                 type="radio"
                 name="events-accordion"
@@ -98,15 +98,15 @@ export const EventsList = () => {
               <div className="collapse-content">
                 <div className="pt-4 space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold">Organizer:</span>
-                    <code className="text-sm bg-base-300 px-2 py-1 rounded">{event.organizer}</code>
+                    <span className="font-bold">Organizer:</span>
+                    <code className="text-sm bg-base-200 px-2 py-1 rounded font-mono">{event.organizer}</code>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold">Event ID:</span>
-                    <span>{event.id}</span>
+                    <span className="font-bold">Event ID:</span>
+                    <span className="font-semibold">{event.id}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold">Status:</span>
+                    <span className="font-bold">Status:</span>
                     <span className={event.isActive ? "text-success" : "text-error"}>
                       {event.isActive ? "Active - POAPs can be minted" : "Inactive - Minting disabled"}
                     </span>

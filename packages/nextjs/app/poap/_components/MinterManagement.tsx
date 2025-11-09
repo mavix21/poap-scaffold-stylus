@@ -39,12 +39,12 @@ export const MinterManagement = () => {
         notification.error("Please fill in all fields");
         return;
       }
-      
+
       await writeAsync({
         functionName: "addEventMinter",
         args: [BigInt(eventId), minterAddress],
       });
-      
+
       notification.success("Minter added successfully!");
       setEventId("");
       setMinterAddress("");
@@ -62,9 +62,9 @@ export const MinterManagement = () => {
   };
 
   return (
-    <div className="p-6 bg-base-200 border-2 border-secondary rounded-2xl shadow-lg">
+    <div className="p-6 bg-base-100 border-2 border-secondary rounded-2xl shadow-lg">
       <h3 className="text-2xl font-bold mb-4 text-secondary">Minter Management</h3>
-      
+
       {!isOwner && (
         <div className="alert alert-warning mb-4">
           <svg
@@ -87,12 +87,12 @@ export const MinterManagement = () => {
       <div className="grid md:grid-cols-2 gap-6">
         {/* Add Minter Section */}
         <div className="space-y-4">
-          <h4 className="text-lg font-semibold">Add Authorized Minter</h4>
+          <h4 className="text-lg font-bold">Add Authorized Minter</h4>
           <div>
-            <label className="block text-sm font-medium mb-2">Event ID:</label>
+            <label className="block text-sm font-bold mb-2">Event ID:</label>
             <input
               type="number"
-              className="input input-bordered w-full"
+              className="input input-bordered w-full bg-base-200"
               value={eventId}
               onChange={e => setEventId(e.target.value)}
               placeholder="Event ID"
@@ -100,9 +100,9 @@ export const MinterManagement = () => {
               min="1"
             />
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium mb-2">Minter Address:</label>
+            <label className="block text-sm font-bold mb-2">Minter Address:</label>
             <AddressInput
               value={minterAddress}
               onChange={setMinterAddress}
@@ -110,7 +110,7 @@ export const MinterManagement = () => {
               disabled={!isOwner || isPending}
             />
           </div>
-          
+
           <button
             className="btn btn-secondary btn-block"
             onClick={handleAddMinter}
@@ -122,37 +122,31 @@ export const MinterManagement = () => {
 
         {/* Check Minter Status Section */}
         <div className="space-y-4">
-          <h4 className="text-lg font-semibold">Check Minter Status</h4>
+          <h4 className="text-lg font-bold">Check Minter Status</h4>
           <div>
-            <label className="block text-sm font-medium mb-2">Event ID:</label>
+            <label className="block text-sm font-bold mb-2">Event ID:</label>
             <input
               type="number"
-              className="input input-bordered w-full"
+              className="input input-bordered w-full bg-base-200"
               value={checkEventId}
               onChange={e => setCheckEventId(e.target.value)}
               placeholder="Event ID"
               min="1"
             />
           </div>
-          
+
           <div>
-            <label className="block text-sm font-medium mb-2">Address to Check:</label>
-            <AddressInput
-              value={checkMinterAddress}
-              onChange={setCheckMinterAddress}
-              placeholder="Address to verify"
-            />
+            <label className="block text-sm font-bold mb-2">Address to Check:</label>
+            <AddressInput value={checkMinterAddress} onChange={setCheckMinterAddress} placeholder="Address to verify" />
           </div>
-          
+
           <button className="btn btn-outline btn-secondary btn-block" onClick={handleCheckMinter}>
             Check Status
           </button>
 
           {checkEventId && checkMinterAddress && (
             <div className={`alert ${isMinter ? "alert-success" : "alert-info"}`}>
-              <span>
-                {isMinter ? "✓ This address is an authorized minter" : "✗ This address is not a minter"}
-              </span>
+              <span>{isMinter ? "✓ This address is an authorized minter" : "✗ This address is not a minter"}</span>
             </div>
           )}
         </div>

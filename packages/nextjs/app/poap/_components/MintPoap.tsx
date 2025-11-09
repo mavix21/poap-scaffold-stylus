@@ -68,15 +68,15 @@ export const MintPoap = () => {
   };
 
   return (
-    <div className="p-6 bg-base-200 border-2 border-accent rounded-2xl shadow-lg">
+    <div className="p-6 bg-base-100 border-2 border-accent rounded-2xl shadow-lg">
       <h3 className="text-2xl font-bold mb-4 text-accent">Mint POAP Badge</h3>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Event ID:</label>
+          <label className="block text-sm font-bold mb-2">Event ID:</label>
           <input
             type="number"
-            className="input input-bordered w-full"
+            className="input input-bordered w-full bg-base-200"
             value={eventId}
             onChange={e => setEventId(e.target.value)}
             placeholder="Enter event ID"
@@ -118,7 +118,7 @@ export const MintPoap = () => {
 
         {!mintToSelf && (
           <div>
-            <label className="block text-sm font-medium mb-2">Recipient Address:</label>
+            <label className="block text-sm font-bold mb-2">Recipient Address:</label>
             <AddressInput
               value={recipientAddress}
               onChange={setRecipientAddress}
