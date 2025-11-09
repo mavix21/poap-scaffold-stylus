@@ -36,19 +36,14 @@ export const AllNfts = () => {
       for (let tokenIndex = 0; tokenIndex < parseInt(totalSupply.toString()); tokenIndex++) {
         try {
           const tokenId = await nftContract.read.tokenByIndex([BigInt(tokenIndex)]);
-
-          const tokenURI = await nftContract.read.tokenURI([tokenId]);
           const owner = await nftContract.read.ownerOf([tokenId]);
-
-          const tokenMetadata = await fetch(tokenURI);
-          const metadata = await tokenMetadata.json();
 
           collectibleUpdate.push({
             id: parseInt(tokenId.toString()),
-            uri: tokenURI,
+            uri: `Token #${tokenId}`,
             owner,
-            image: metadata.image,
-            name: metadata.name,
+            image: "",
+            name: `POAP Token #${tokenId}`,
           });
         } catch (e) {
           notification.error("Error fetching NTFs");
