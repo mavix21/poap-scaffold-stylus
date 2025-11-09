@@ -89,6 +89,107 @@ pub struct Poap {
     paused: StorageBool,
 }
 
+impl Poap {
+    fn ensure_owner(&self) -> Result<(), PoapError> {
+        self.owner.only_owner().map_err(PoapError::from)
+    }
+
+    fn ensure_not_paused(&self) -> Result<(), PoapError> {
+        if self.paused.get() {
+            Err(PoapError::Paused(Paused {}))
+        } else {
+            Ok(())
+        }
+    }
+
+    fn ensure_event_active(&self, event_id: U256) -> Result<(), PoapError> {
+        if self.events.get(event_id).active.get() {
+            Ok(())
+        } else {
+            Err(PoapError::EventDoesNotExist(EventDoesNotExist {
+                eventId: event_id,
+            }))
+        }
+    }
+
+    fn ensure_mint_permissions(&self, event_id: U256) -> Result<(), PoapError> {
+        let is_minter = self.event_minters.get(event_id).get(self.vm().msg_sender());
+
+        if is_minter || self.owner.only_owner().is_ok() {
+            Ok(())
+        } else {
+            Err(PoapError::OnlyEventMinterOrOwner(OnlyEventMinterOrOwner {}))
+        }
+    }
+
+    fn ensure_recipient_not_attending(
+        &self,
+        event_id: U256,
+        recipient: Address,
+    ) -> Result<(), PoapError> {
+        if self.event_attendance.get(event_id).get(recipient) {
+            Err(PoapError::TokenAlreadyMinted(TokenAlreadyMinted {
+                recipient,
+                eventId: event_id,
+            }))
+        } else {
+            Ok(())
+        }
+    }
+
+    fn next_token_id(&mut self) -> U256 {
+        let new_token_id = self.last_token_id.get() + U256::from(1);
+        self.last_token_id.set(new_token_id);
+        new_token_id
+    }
+
+    fn mint_badge_internal(
+        &mut self,
+        event_id: U256,
+        recipient: Address,
+    ) -> Result<U256, PoapError> {
+        let new_token_id = self.next_token_id();
+
+        self.erc721
+            ._mint(recipient, new_token_id)
+            .map_err(|_| PoapError::MintFailed(MintFailed {}))?;
+
+        self.token_event.setter(new_token_id).set(event_id);
+        self.event_attendance
+            .setter(event_id)
+            .setter(recipient)
+            .set(true);
+
+        let _ =
+            self.enumerable
+                ._add_token_to_owner_enumeration(recipient, new_token_id, &self.erc721);
+        self.enumerable
+            ._add_token_to_all_tokens_enumeration(new_token_id);
+
+        stylus_sdk::stylus_core::log(
+            self.vm(),
+            BadgeMinted {
+                recipient,
+                tokenId: new_token_id,
+                eventId: event_id,
+            },
+        );
+
+        Ok(new_token_id)
+    }
+
+    fn build_token_uri(&self, token_id: U256) -> Result<String, erc721::Error> {
+        self.erc721.owner_of(token_id)?;
+
+        let event_id = self.token_event.get(token_id);
+        let base = self.base_uri.get_string();
+        let event_str = event_id.to_string();
+        let token_str = token_id.to_string();
+
+        Ok(base + &event_str + "/" + &token_str)
+    }
+}
+
 #[public]
 #[implements(IErc721Metadata<Error = erc721::Error>, IErc721Enumerable<Error = enumerable::Error>, IErc165)]
 impl Poap {
@@ -114,7 +215,7 @@ impl Poap {
         date: String,
         organizer: Address,
     ) -> Result<U256, PoapError> {
-        self.owner.only_owner().map_err(PoapError::from)?;
+        self.ensure_owner()?;
 
         let new_event_id = self.last_event_id.get() + U256::from(1);
         self.last_event_id.set(new_event_id);
@@ -145,13 +246,8 @@ impl Poap {
     }
 
     fn add_event_minter(&mut self, event_id: U256, minter: Address) -> Result<(), PoapError> {
-        self.owner.only_owner().map_err(PoapError::from)?;
-
-        if !self.events.get(event_id).active.get() {
-            return Err(PoapError::EventDoesNotExist(EventDoesNotExist {
-                eventId: event_id,
-            }));
-        }
+        self.ensure_owner()?;
+        self.ensure_event_active(event_id)?;
 
         self.event_minters.setter(event_id).setter(minter).set(true);
 
@@ -167,13 +263,8 @@ impl Poap {
     }
 
     fn remove_event_minter(&mut self, event_id: U256, minter: Address) -> Result<(), PoapError> {
-        self.owner.only_owner().map_err(PoapError::from)?;
-
-        if !self.events.get(event_id).active.get() {
-            return Err(PoapError::EventDoesNotExist(EventDoesNotExist {
-                eventId: event_id,
-            }));
-        }
+        self.ensure_owner()?;
+        self.ensure_event_active(event_id)?;
 
         self.event_minters
             .setter(event_id)
@@ -192,7 +283,7 @@ impl Poap {
     }
 
     fn deactivate_event(&mut self, event_id: U256) -> Result<(), PoapError> {
-        self.owner.only_owner().map_err(PoapError::from)?;
+        self.ensure_owner()?;
 
         self.events.setter(event_id).active.set(false);
 
@@ -200,62 +291,12 @@ impl Poap {
     }
 
     fn mint_token(&mut self, event_id: U256, to: Address) -> Result<U256, PoapError> {
-        if self.paused.get() {
-            return Err(PoapError::Paused(Paused {}));
-        }
+        self.ensure_not_paused()?;
+        self.ensure_event_active(event_id)?;
+        self.ensure_mint_permissions(event_id)?;
+        self.ensure_recipient_not_attending(event_id, to)?;
 
-        if !self.events.get(event_id).active.get() {
-            return Err(PoapError::EventDoesNotExist(EventDoesNotExist {
-                eventId: event_id,
-            }));
-        }
-
-        let is_minter = self.event_minters.get(event_id).get(self.vm().msg_sender());
-        let is_owner = self.owner.only_owner().is_ok();
-
-        if !is_minter && !is_owner {
-            return Err(PoapError::OnlyEventMinterOrOwner(OnlyEventMinterOrOwner {}));
-        }
-
-        if self
-            .event_attendance
-            .get(event_id)
-            .get(self.vm().msg_sender())
-        {
-            return Err(PoapError::TokenAlreadyMinted(TokenAlreadyMinted {
-                recipient: to,
-                eventId: event_id,
-            }));
-        }
-
-        let new_token_id = self.last_token_id.get() + U256::from(1);
-        self.last_token_id.set(new_token_id);
-
-        self.erc721
-            ._mint(to, new_token_id)
-            .map_err(|_| PoapError::MintFailed(MintFailed {}))?;
-
-        self.token_event.setter(new_token_id).set(event_id);
-
-        self.event_attendance.setter(event_id).setter(to).set(true);
-
-        let _ = self
-            .enumerable
-            ._add_token_to_owner_enumeration(to, new_token_id, &self.erc721);
-
-        self.enumerable
-            ._add_token_to_all_tokens_enumeration(new_token_id);
-
-        stylus_sdk::stylus_core::log(
-            self.vm(),
-            BadgeMinted {
-                recipient: to,
-                tokenId: new_token_id,
-                eventId: event_id,
-            },
-        );
-
-        Ok(new_token_id)
+        self.mint_badge_internal(event_id, to)
     }
 
     fn batch_mint_event_to_many(
@@ -263,62 +304,21 @@ impl Poap {
         event_id: U256,
         recipients: Vec<Address>,
     ) -> Result<Vec<U256>, PoapError> {
-        // Check if paused
-        if self.paused.get() {
-            return Err(PoapError::Paused(Paused {}));
-        }
-
-        // Check if event exists and is active
-        if !self.events.get(event_id).active.get() {
-            return Err(PoapError::EventDoesNotExist(EventDoesNotExist {
-                eventId: event_id,
-            }));
-        }
-
-        // Check permissions
-        let is_minter = self.event_minters.get(event_id).get(self.vm().msg_sender());
-        let is_owner = self.owner.only_owner().is_ok();
-
-        if !is_minter && !is_owner {
-            return Err(PoapError::OnlyEventMinterOrOwner(OnlyEventMinterOrOwner {}));
-        }
+        self.ensure_not_paused()?;
+        self.ensure_event_active(event_id)?;
+        self.ensure_mint_permissions(event_id)?;
 
         let mut token_ids = Vec::new();
 
         for recipient in recipients {
-            // Skip if already has badge for this event
-            if self.event_attendance.get(event_id).get(recipient) {
+            if self
+                .ensure_recipient_not_attending(event_id, recipient)
+                .is_err()
+            {
                 continue;
             }
 
-            let new_token_id = self.last_token_id.get() + U256::from(1);
-            self.last_token_id.set(new_token_id);
-
-            if let Ok(()) = self.erc721._mint(recipient, new_token_id) {
-                self.token_event.setter(new_token_id).set(event_id);
-
-                self.event_attendance
-                    .setter(event_id)
-                    .setter(recipient)
-                    .set(true);
-
-                let _ = self.enumerable._add_token_to_owner_enumeration(
-                    recipient,
-                    new_token_id,
-                    &self.erc721,
-                );
-                self.enumerable
-                    ._add_token_to_all_tokens_enumeration(new_token_id);
-
-                stylus_sdk::stylus_core::log(
-                    self.vm(),
-                    BadgeMinted {
-                        recipient,
-                        tokenId: new_token_id,
-                        eventId: event_id,
-                    },
-                );
-
+            if let Ok(new_token_id) = self.mint_badge_internal(event_id, recipient) {
                 token_ids.push(new_token_id);
             }
         }
@@ -367,17 +367,7 @@ impl Poap {
     /// Returns the metadata URI for a token (constructs from eventId and tokenId)
     #[selector(name = "tokenURI")]
     fn token_uri(&self, token_id: U256) -> Result<String, erc721::Error> {
-        self.erc721.owner_of(token_id)?;
-
-        let event_id = self.token_event.get(token_id);
-
-        // Construct URI: baseURI/eventId/tokenId
-        // Example: "https://api.poap.xyz/metadata/1/42"
-        let base = self.base_uri.get_string();
-        let event_str = event_id.to_string();
-        let token_str = token_id.to_string();
-
-        Ok(base + &event_str + "/" + &token_str)
+        self.build_token_uri(token_id)
     }
 
     // ============ QUERY FUNCTIONS ============
@@ -515,14 +505,7 @@ impl IErc721Metadata for Poap {
 
     #[selector(name = "tokenURI")]
     fn token_uri(&self, token_id: U256) -> Result<String, Self::Error> {
-        self.erc721.owner_of(token_id)?;
-
-        let event_id = self.token_event.get(token_id);
-        let base = self.base_uri.get_string();
-        let event_str = event_id.to_string();
-        let token_str = token_id.to_string();
-
-        Ok(base + &event_str + "/" + &token_str)
+        self.build_token_uri(token_id)
     }
 }
 
