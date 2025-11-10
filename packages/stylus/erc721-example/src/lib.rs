@@ -239,6 +239,10 @@ impl Poap {
         self.last_token_id.get()
     }
 
+    fn get_last_event_id(&self) -> U256 {
+        self.last_event_id.get()
+    }
+
     fn get_token_event(&self, token_id: U256) -> U256 {
         self.token_event.get(token_id)
     }
