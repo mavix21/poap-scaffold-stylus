@@ -21,13 +21,13 @@ export const EventsList = () => {
 
   const { data: lastEventId } = useScaffoldReadContract({
     contractName: "erc721-example",
-    functionName: "getLastTokenId",
+    functionName: "getLastEventId",
     watch: true,
   });
 
   useEffect(() => {
     const fetchEvents = async () => {
-      if (!nftContract || !lastEventId) return;
+      if (!nftContract || !lastEventId || lastEventId === 0n) return;
 
       setLoading(true);
       const eventsData: EventInfo[] = [];
@@ -58,7 +58,8 @@ export const EventsList = () => {
     };
 
     fetchEvents();
-  }, [nftContract, lastEventId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastEventId]);
 
   if (loading) {
     return (
