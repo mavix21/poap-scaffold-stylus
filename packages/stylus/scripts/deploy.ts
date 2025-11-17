@@ -47,7 +47,7 @@ export default async function deployScript(deployOptions: DeployOptions) {
   await deployStylusContract({
     contract: "erc721-example",
     name: "erc721-example",
-    constructorArgs: ["My NFT", "MNFT", "https://ipfs.io/ipfs/", "0x3f1Eae7D46d88F08fc2F8ed27FCb2AB183EB2d0E"],
+    constructorArgs: ["POAP", "POAP", "https://ipfs.io/ipfs/", "0x5e47df5e239fc0585b878692d2e8f6d53455f214"],
     ...deployOptions,
   });
 
