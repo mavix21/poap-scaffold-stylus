@@ -34,6 +34,10 @@ const scaffoldConfig = {
   rpcOverrides: {
     // Example:
     // [chains.mainnet.id]: "https://mainnet.buidlguidl.com",
+    // Use Alchemy endpoint from env var for Arbitrum Sepolia, fallback to public RPC
+    ...(process.env.NEXT_PUBLIC_ALCHEMY_API_KEY
+      ? { [chains.arbitrumSepolia.id]: `https://arb-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}` }
+      : { [chains.arbitrumSepolia.id]: "https://sepolia-rollup.arbitrum.io/rpc" }),
   },
 
   // This is ours WalletConnect's default project ID.
