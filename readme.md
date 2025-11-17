@@ -4,6 +4,8 @@ A decentralized Proof of Attendance Protocol (POAP) implementation built on Arbi
 
 🚀 **[Live Demo](https://poap-scaffold-stylus.vercel.app/)**
 
+📝 **[Deployed Contract on Arbitrum Sepolia](https://sepolia.arbiscan.io/address/0x88ce529d2c86624f111679de1938ab22ed11d6f8)**
+
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
