@@ -2,6 +2,8 @@
 
 A decentralized Proof of Attendance Protocol (POAP) implementation built on Arbitrum Stylus, featuring soulbound NFT badges for event attendance tracking. This project demonstrates the capabilities and constraints of Stylus smart contracts while providing a practical application for event organizers.
 
+🚀 **[Live Demo](https://poap-scaffold-stylus.vercel.app/)**
+
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
