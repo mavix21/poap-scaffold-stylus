@@ -34,9 +34,14 @@ const scaffoldConfig = {
   rpcOverrides: {
     // Example:
     // [chains.mainnet.id]: "https://mainnet.buidlguidl.com",
+    // Mainnet public RPC (avoid using Alchemy key meant for Arbitrum Sepolia)
+    1: "https://eth.llamarpc.com",
     // Use Alchemy endpoint from env var for Arbitrum Sepolia, fallback to public RPC
     ...(process.env.NEXT_PUBLIC_ALCHEMY_API_KEY
-      ? { [chains.arbitrumSepolia.id]: `https://arb-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}` }
+      ? {
+          [chains.arbitrumSepolia.id]:
+            `https://arb-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_API_KEY}`,
+        }
       : { [chains.arbitrumSepolia.id]: "https://sepolia-rollup.arbitrum.io/rpc" }),
   },
 
